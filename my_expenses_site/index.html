@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Мои расходы</title>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+
+</head>
+<body>
+<div class="wrap auth" id="authBox" hidden>
+  <h2>Мои расходы</h2><p id="authSub">Войдите, чтобы увидеть свои траты.</p>
+  <div class="panel">
+    <div class="tabs" role="tablist"><button class="tab" role="tab" data-a="in" aria-selected="true">Вход</button><button class="tab" role="tab" data-a="up" aria-selected="false">Регистрация</button></div>
+    <div class="f" id="aName" hidden><label for="aname">Имя</label><input id="aname" autocomplete="name"></div>
+    <div class="f"><label for="aemail">Email</label><input id="aemail" type="email" autocomplete="email"></div>
+    <div class="f"><label for="apass">Пароль</label><input id="apass" type="password" autocomplete="current-password" placeholder="Минимум 6 символов"></div>
+    <button class="btn" id="aGo">Войти</button>
+    <div class="err" id="aerr" role="alert"></div>
+  </div>
+  <p style="font-size:12px;margin-top:12px">Данные хранятся локально в этом браузере. Это учебный прототип, а не серверная система авторизации.</p>
+</div>
+<div class="wrap" id="app" hidden>
+<header>
+  <div><h1 id="mname">Расходы за месяц</h1><div class="total" id="total">0 <small>₽</small></div><div id="bline" style="color:var(--mute);font-size:13px"></div></div>
+  <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+    <div style="width:160px"><label for="month">Месяц</label><input type="month" id="month"></div>
+    <div class="header-actions">
+      <button class="btn sec" id="themeBtn" type="button" aria-label="Переключить тему">Тема</button>
+      <button class="btn sec" id="exportBtn" type="button">Экспорт JSON</button>
+      <button class="who" id="whoBtn" aria-label="Открыть профиль"><span class="av" id="whoAv"></span><span id="whoName"></span></button>
+    </div>
+  </div>
+</header>
+<div class="grid">
+  <div class="panel">
+    <h3>Новый расход</h3>
+    <div class="f"><label for="amount">Сумма, ₽</label><input id="amount" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0"></div>
+    <div class="f"><label for="cat">Категория</label><select id="cat"></select></div>
+    <div class="f"><label for="date">Дата</label><input id="date" type="date"></div>
+    <div class="f"><label for="note">Заметка</label><input id="note" type="text" placeholder="Например, продукты"></div>
+    <button class="btn" id="add">Добавить расход</button>
+    <div class="err" id="ferr" role="alert"></div>
+  </div>
+  <div class="panel">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-t="list" aria-selected="true">Расходы</button>
+      <button class="tab" role="tab" data-t="stats" aria-selected="false">Аналитика</button>
+      <button class="tab" role="tab" data-t="prof" aria-selected="false">Профиль</button>
+      <button class="tab" role="tab" data-t="sql" aria-selected="false">SQL</button>
+    </div>
+    <div id="list">
+      <div class="toolbar">
+        <input id="searchExpense" type="search" placeholder="Поиск по заметке или категории" aria-label="Поиск расходов">
+        <select id="filterCat" aria-label="Фильтр по категории"><option value="">Все категории</option></select>
+        <select id="sortExpenses" aria-label="Сортировка"><option value="date-desc">Сначала новые</option><option value="date-asc">Сначала старые</option><option value="amount-desc">Сначала дорогие</option><option value="amount-asc">Сначала дешёвые</option></select>
+      </div>
+      <div id="expenseRows"></div>
+      <div id="editArea" hidden></div>
+    </div>
+    <div id="stats" hidden></div>
+    <div id="prof" hidden></div>
+    <div id="sql" hidden>
+      <label for="q">SQL-запрос к базе (SQLite)</label>
+      <textarea id="q" spellcheck="false">SELECT c.name AS категория, ROUND(SUM(e.amount),2) AS сумма
+FROM expenses e JOIN categories c ON c.id = e.category_id
+WHERE e.user_id = CURRENT_USER_ID
+GROUP BY c.id ORDER BY сумма DESC;</textarea>
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+        <button class="btn" style="width:auto" id="run">Выполнить</button>
+        <button class="btn sec" id="csv">Скачать CSV</button>
+        <button class="btn sec" id="reset">Очистить мои расходы</button>
+      </div>
+      <div class="err" id="qerr" role="alert"></div>
+      <div class="scroll" id="qres"></div>
+      <pre>users(id, name, email, pass_hash, salt, currency, budget, created_at)
+categories(id, name, color)
+expenses(id, user_id, amount, category_id, spent_on, note, created_at)</pre>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-asm.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
